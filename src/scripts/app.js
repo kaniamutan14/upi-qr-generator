@@ -1,3 +1,10 @@
+import QRCodeStyling from 'qr-code-styling';
+import { registerSW } from 'virtual:pwa-register';
+
+if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+  registerSW({ immediate: true });
+}
+
 // ============================================
 // PayQR Studio — Offline-First Payment Platform
 // Main Application Logic
@@ -101,6 +108,91 @@ document.addEventListener('DOMContentLoaded', () => {
   const STATE_KEY = 'payqr_platform_state';
   const LEGACY_KEY = 'payqr_profile';
   const UPI_REGEX = /^[\w.\-]+@[\w.\-]+$/;
+  const MAX_LEDGER_ENTRIES = 350;
+
+  const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
+
+  const safeText = (value, fallback = '', maxLength = 500) => {
+    if (typeof value !== 'string') return fallback;
+    return value.slice(0, maxLength);
+  };
+
+  const safeAmount = (value, fallback = 0) => {
+    const amount = Number(value);
+    return Number.isFinite(amount) && amount >= 0 && amount <= 500000 ? amount : fallback;
+  };
+
+  const safeThemeColor = (value) => /^#[0-9a-f]{6}$/i.test(value || '') ? value : '#00B86B';
+  const safeLogoDataUri = (value) => /^data:image\/(?:png|jpe?g|webp|gif);base64,/i.test(value || '') ? value : null;
+
+  const normalizePlatformState = (rawState) => {
+    const rawProfiles = Array.isArray(rawState?.profiles) ? rawState.profiles : [];
+    const usedIds = new Set();
+    const profiles = rawProfiles.map((rawProfile, index) => {
+      if (!rawProfile || typeof rawProfile !== 'object') return null;
+      const name = safeText(rawProfile.name, '', 120).trim();
+      const upiId = safeText(rawProfile.upiId, '', 160).trim().toLowerCase();
+      if (!name || !UPI_REGEX.test(upiId)) return null;
+
+      let id = safeText(rawProfile.id, `prof_restored_${index}`, 120).trim() || `prof_restored_${index}`;
+      while (usedIds.has(id)) id = `${id}_${index}`;
+      usedIds.add(id);
+
+      const catalog = {};
+      if (rawProfile.catalog && typeof rawProfile.catalog === 'object' && !Array.isArray(rawProfile.catalog)) {
+        Object.entries(rawProfile.catalog).slice(0, 500).forEach(([rawName, rawItem]) => {
+          const itemName = safeText(rawName, '', 120).trim();
+          if (itemName) catalog[itemName] = {
+            price: safeAmount(rawItem?.price),
+            count: Math.max(0, Math.floor(safeAmount(rawItem?.count)))
+          };
+        });
+      }
+
+      return {
+        id,
+        label: safeText(rawProfile.label, 'Store Checkout', 120).trim() || 'Store Checkout',
+        name,
+        upiId,
+        themeColor: safeThemeColor(rawProfile.themeColor),
+        logoDataUri: safeLogoDataUri(rawProfile.logoDataUri),
+        catalog
+      };
+    }).filter(Boolean);
+
+    const profileIds = new Set(profiles.map(profile => profile.id));
+    const ledger = (Array.isArray(rawState?.ledger) ? rawState.ledger : []).slice(0, MAX_LEDGER_ENTRIES).map((entry, index) => {
+      const items = (Array.isArray(entry?.items) ? entry.items : []).slice(0, 100).map(item => ({
+        name: safeText(item?.name, 'Item', 120).trim() || 'Item',
+        qty: Math.max(1, Math.floor(safeAmount(item?.qty, 1))),
+        price: safeAmount(item?.price)
+      }));
+      return {
+        id: safeText(entry?.id, `inv_restored_${index}`, 120),
+        timestamp: Number.isFinite(Number(entry?.timestamp)) ? Number(entry.timestamp) : Date.now(),
+        profileId: safeText(entry?.profileId, '', 120),
+        profileName: safeText(entry?.profileName, 'Store Checkout', 120),
+        payeeName: safeText(entry?.payeeName, '', 120),
+        upiId: safeText(entry?.upiId, '', 160),
+        amount: safeAmount(entry?.amount),
+        note: safeText(entry?.note, '', 500),
+        items
+      };
+    });
+
+    const requestedActiveId = safeText(rawState?.activeProfileId, '', 120);
+    return {
+      activeProfileId: profileIds.has(requestedActiveId) ? requestedActiveId : (profiles[0]?.id || 'prof_init'),
+      profiles,
+      ledger
+    };
+  };
 
   const defaultPlatformState = {
     activeProfileId: 'prof_init',
@@ -168,8 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && Array.isArray(parsed.profiles)) {
-          platformState = parsed;
-          if (!platformState.ledger) platformState.ledger = [];
+          platformState = normalizePlatformState(parsed);
         }
       } else {
         // Check for backwards-compatible legacy migration
@@ -233,8 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aabUpi) aabUpi.textContent = prof.upiId || 'upi@bank';
     if (aabTag) aabTag.textContent = prof.label || 'Active';
     if (aabAvatar) {
-      if (prof.logoDataUri) {
-        aabAvatar.innerHTML = `<img src="${prof.logoDataUri}" alt="Logo">`;
+      const logoDataUri = safeLogoDataUri(prof.logoDataUri);
+      if (logoDataUri) {
+        aabAvatar.innerHTML = `<img src="${escapeHTML(logoDataUri)}" alt="Logo">`;
       } else {
         aabAvatar.innerHTML = '🏦';
       }
@@ -275,17 +367,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const closeModal = (modalEl) => {
     if (!modalEl || modalEl.classList.contains('hidden')) return;
+    document.body.style.overflow = '';
     const card = modalEl.querySelector('.modal-card');
     if (card) {
       card.classList.add('animate-out');
       setTimeout(() => {
         modalEl.classList.add('hidden');
         card.classList.remove('animate-out');
-        document.body.style.overflow = '';
       }, 160);
     } else {
       modalEl.classList.add('hidden');
-      document.body.style.overflow = '';
     }
   };
 
@@ -400,10 +491,10 @@ document.addEventListener('DOMContentLoaded', () => {
       li.innerHTML = `
         <div class="pli-info">
           <span class="pli-label">
-            <span class="profile-dot" style="background-color: ${prof.themeColor || '#00B86B'}; box-shadow: 0 0 6px ${prof.themeColor || '#00B86B'};"></span>
-            ${prof.label || 'Unnamed Profile'}
+            <span class="profile-dot" style="background-color: ${safeThemeColor(prof.themeColor)}; box-shadow: 0 0 6px ${safeThemeColor(prof.themeColor)};"></span>
+            ${escapeHTML(prof.label || 'Unnamed Profile')}
           </span>
-          <span class="pli-upi">${prof.name} (${prof.upiId})</span>
+          <span class="pli-upi">${escapeHTML(prof.name)} (${escapeHTML(prof.upiId)})</span>
         </div>
       `;
       li.addEventListener('click', () => loadProfileIntoEditor(prof));
@@ -577,10 +668,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const li = document.createElement('li');
       li.className = 'catalog-item-row';
       li.innerHTML = `
-        <span class="cat-item-name">${key}</span>
+        <span class="cat-item-name">${escapeHTML(key)}</span>
         <div style="display:flex; gap:8px; align-items:center;">
           <button type="button" class="btn-add-to-bill" title="Add directly to current itemized bill">➕ Add</button>
-          <input type="number" class="cat-price-edit" value="${itemData.price || 0}" min="0">
+          <input type="number" class="cat-price-edit" value="${safeAmount(itemData.price)}" min="0">
           <button type="button" class="btn-delete-small">🗑️</button>
         </div>
       `;
@@ -750,8 +841,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const div = document.createElement('div');
       div.className = 'autocomplete-item';
       div.innerHTML = `
-        <span>${matchKey}</span>
-        <span class="autocomplete-price-tag">₹${itemData.price || 0}</span>
+        <span>${escapeHTML(matchKey)}</span>
+        <span class="autocomplete-price-tag">₹${safeAmount(itemData.price)}</span>
       `;
       div.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -789,9 +880,9 @@ document.addEventListener('DOMContentLoaded', () => {
       rowDiv.className = 'item-row';
       rowDiv.id = `item_row_${row.id}`;
       rowDiv.innerHTML = `
-        <input type="text" class="item-name-input" placeholder="Item Name (e.g. Latte)" value="${row.name}">
-        <input type="number" class="item-qty-input" value="${row.qty}" min="1">
-        <input type="number" class="item-price-input" placeholder="0" value="${row.price || ''}" min="0">
+        <input type="text" class="item-name-input" placeholder="Item Name (e.g. Latte)" value="${escapeHTML(row.name)}">
+        <input type="number" class="item-qty-input" value="${safeAmount(row.qty, 1)}" min="1">
+        <input type="number" class="item-price-input" placeholder="0" value="${safeAmount(row.price) || ''}" min="0">
         <span class="item-row-total">₹0</span>
         <button type="button" class="btn-del-row" title="Delete Row">×</button>
       `;
@@ -1075,7 +1166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     platformState.ledger.unshift(invoiceLog);
     // Keep ledger capped at 350 entries to preserve localStorage quota
-    if (platformState.ledger.length > 350) {
+    if (platformState.ledger.length > MAX_LEDGER_ENTRIES) {
       platformState.ledger.pop();
     }
 
@@ -1354,13 +1445,13 @@ document.addEventListener('DOMContentLoaded', () => {
       li.className = 'ledger-item';
       li.innerHTML = `
         <div class="ledger-header-line">
-          <span class="lh-time">${timeFormatted}</span>
-          <span class="lh-prof">${item.profileName || 'General'}</span>
+          <span class="lh-time">${escapeHTML(timeFormatted)}</span>
+          <span class="lh-prof">${escapeHTML(item.profileName || 'General')}</span>
         </div>
         <div class="ledger-body">
           <div class="lb-details">
-            <p class="lb-note">${item.note || 'No transaction note'}</p>
-            <p class="lb-items">${itemsSummary}</p>
+            <p class="lb-note">${escapeHTML(item.note || 'No transaction note')}</p>
+            <p class="lb-items">${escapeHTML(itemsSummary)}</p>
           </div>
           <div class="lb-amount">₹${Number(item.amount || 0).toLocaleString('en-IN')}</div>
         </div>
@@ -1472,9 +1563,9 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.onload = (evt) => {
       try {
         const parsed = JSON.parse(evt.target.result);
-        if (parsed && Array.isArray(parsed.profiles) && parsed.profiles.length > 0) {
-          platformState = parsed;
-          if (!platformState.ledger) platformState.ledger = [];
+        const restoredState = normalizePlatformState(parsed);
+        if (restoredState.profiles.length > 0) {
+          platformState = restoredState;
           savePlatformState();
           applyActiveProfileToUI();
           showToast('✓ Workspace successfully restored from JSON backup!');
@@ -1520,16 +1611,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      const csvCell = (value) => {
+        let text = String(value ?? '');
+        // Prevent spreadsheet applications from treating imported text as a formula.
+        if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+        return `"${text.replace(/"/g, '""')}"`;
+      };
+
       const headers = ['Invoice ID', 'Date & Time', 'Profile Name', 'Payee Name', 'UPI ID', 'Note', 'Itemized Summary', 'Grand Total (INR)'];
       const rows = logs.map(entry => [
-        entry.id,
-        `"${new Date(entry.timestamp).toLocaleString('en-IN')}"`,
-        `"${entry.profileName || ''}"`,
-        `"${entry.payeeName || ''}"`,
-        entry.upiId,
-        `"${(entry.note || '').replace(/"/g, '""')}"`,
-        `"${entry.items ? entry.items.map(i => `${i.qty}x ${i.name} (@₹${i.price})`).join('; ').replace(/"/g, '""') : 'Lump Sum'}"`,
-        entry.amount
+        csvCell(entry.id),
+        csvCell(new Date(entry.timestamp).toLocaleString('en-IN')),
+        csvCell(entry.profileName),
+        csvCell(entry.payeeName),
+        csvCell(entry.upiId),
+        csvCell(entry.note),
+        csvCell(entry.items?.length ? entry.items.map(i => `${i.qty}x ${i.name} (@₹${i.price})`).join('; ') : 'Lump Sum'),
+        safeAmount(entry.amount)
       ]);
 
       const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');

@@ -1,6 +1,6 @@
 ---
 import '../styles/styles.css';
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title?: string;
@@ -17,7 +17,7 @@ const {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   
   <!-- SEO -->
   <title>{title}</title>
@@ -30,14 +30,14 @@ const {
   <meta name="apple-mobile-web-app-title" content="PayQR">
   <link rel="icon" type="image/png" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="/manifest.webmanifest">
   
   <!-- Google Font: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <ViewTransitions />
+  <ClientRouter />
 </head>
 <body>
   <div class="app-container">
@@ -50,23 +50,9 @@ const {
     <span id="toastMessage">Action completed successfully!</span>
   </div>
 
-  <!-- QR Code Library -->
-  <script is:inline src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.8.4/lib/qr-code-styling.js"></script>
-  
   <!-- Unified App Logic -->
   <script>
     import '../scripts/app.js';
-  </script>
-
-  <!-- Service Worker Registration -->
-  <script is:inline>
-    if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
-          .then(reg => console.log('SW registered:', reg.scope))
-          .catch(err => console.log('SW registration failed:', err));
-      });
-    }
   </script>
 </body>
 </html>

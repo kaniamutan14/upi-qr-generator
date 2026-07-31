@@ -21,3 +21,7 @@ Thumbs.db
 .gemini/
 .system_generated/
 scratch/
+
+# Astro build & cache directories
+.astro/
+dist/

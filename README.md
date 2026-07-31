@@ -17,17 +17,17 @@ A state-of-the-art, 100% client-side **Progressive Web App (PWA)** designed to g
 
 ## 🛠️ Technology Stack
 
-- **Structure & Markup:** Semantic HTML5
-- **Styling & Layout:** Vanilla CSS3 (Custom Tokens, Flexbox, Safe-area padding support)
-- **Logic & Rendering:** Vanilla JavaScript (ES6+) & HTML5 2D Canvas API
-- **QR Engine:** [`qr-code-styling`](https://github.com/kozakdenys/qr-code-styling) for extra-rounded, customized brand QR rendering.
-- **PWA Infrastructure:** Native Service Workers & Web Application Manifest
+- **Application framework:** Astro and Vite, compiled to a static site
+- **Styling & Layout:** Vanilla CSS3 (custom tokens, Flexbox, safe-area padding support)
+- **Logic & Rendering:** Vanilla JavaScript (ES6+) and HTML5 Canvas API
+- **QR Engine:** [`qr-code-styling`](https://github.com/kozakdenys/qr-code-styling), bundled with the app for offline QR generation
+- **PWA Infrastructure:** `@vite-pwa/astro` generated manifest and Workbox service worker
 
 ---
 
 ## 🚀 Quick Start & Local Development
 
-No Node.js dependencies, complex bundlers, or compilation steps are required!
+Node.js 20.19+ is required for Astro.
 
 1. **Clone the repository:**
 
@@ -36,13 +36,27 @@ No Node.js dependencies, complex bundlers, or compilation steps are required!
 
    ```
 
-2. **Serve locally:**  
-   Because Service Workers and the Web Share API require a trusted origin or localhost, run a simple local server (for example, using `npx serve`):
+2. **Install dependencies:**
+
    ```bash
-   npx serve -l 3000 .
+   npm install
    ```
-3. **Open in your browser:**  
-   Navigate to `http://localhost:3000` on your desktop or mobile connected to the same local WiFi network!
+
+3. **Run the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Create a production build:**
+
+   ```bash
+   npm run build
+   npm run preview
+   ```
+
+5. **Open in your browser:**
+   Navigate to the URL printed by Astro (normally `http://localhost:4321` while developing). Production hosting should serve the generated `dist/` directory from the site root so the PWA routes resolve correctly.
 
 ---
 

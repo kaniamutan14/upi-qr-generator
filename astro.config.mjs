@@ -9,7 +9,9 @@ export default defineConfig({
   integrations: [
     AstroPWA({
       registerType: 'autoUpdate',
-      injectRegister: 'script',
+      // Registration is handled explicitly in src/scripts/app.js so updates
+      // can be activated immediately without a second, competing registration.
+      injectRegister: false,
       manifest: {
         name: 'PayQR Studio — Professional Offline Payment Suite',
         short_name: 'PayQR',
