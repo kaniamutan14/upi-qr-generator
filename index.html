@@ -13,6 +13,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PayQR">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="manifest" href="manifest.json">
   
@@ -27,70 +28,78 @@
 <body>
   <div class="app-container">
     
-    <!-- ===== HEADER ===== -->
+    <!-- ===== TOP BRANDING & NAVIGATION BAR ===== -->
     <header class="app-header">
-      <div class="app-logo">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="8" fill="#00B86B" fill-opacity="0.15"/>
-          <rect x="6" y="6" width="8" height="8" rx="2" fill="#00B86B"/>
-          <rect x="18" y="6" width="8" height="8" rx="2" fill="#00B86B"/>
-          <rect x="6" y="18" width="8" height="8" rx="2" fill="#00B86B"/>
-          <rect x="18" y="18" width="4" height="4" rx="1" fill="#00B86B"/>
-          <rect x="24" y="18" width="2" height="8" rx="1" fill="#00B86B"/>
-          <rect x="18" y="24" width="8" height="2" rx="1" fill="#00B86B"/>
-        </svg>
+      <div class="header-brand">
+        <div class="app-logo">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="var(--accent)" fill-opacity="0.2"/>
+            <rect x="6" y="6" width="8" height="8" rx="2" fill="var(--accent)"/>
+            <rect x="18" y="6" width="8" height="8" rx="2" fill="var(--accent)"/>
+            <rect x="6" y="18" width="8" height="8" rx="2" fill="var(--accent)"/>
+            <rect x="18" y="18" width="4" height="4" rx="1" fill="var(--accent)"/>
+            <rect x="24" y="18" width="2" height="8" rx="1" fill="var(--accent)"/>
+            <rect x="18" y="24" width="8" height="2" rx="1" fill="var(--accent)"/>
+          </svg>
+        </div>
+        <h1 class="app-title">PayQR <span class="badge-pro">Studio</span></h1>
       </div>
-      <h1 class="app-title">PayQR</h1>
+
+      <!-- Active Profile Pill & Nav Icons -->
+      <div class="header-controls">
+        <button type="button" id="activeProfileBtn" class="btn-profile-switcher" title="Switch Profile or Manage Catalog">
+          <span class="profile-dot"></span>
+          <span id="activeProfileLabel">Store Checkout</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-icons">
+          <button type="button" id="btnOpenCatalogNav" class="nav-btn nav-btn-catalog" title="Smart Item Catalog & Menu" aria-label="Smart Catalog">📦</button>
+          <button type="button" id="btnOpenLedger" class="nav-btn" title="Recent Invoices Ledger" aria-label="Recent Invoices">📜</button>
+          <button type="button" id="btnOpenProfileManager" class="nav-btn" title="Manage Profiles & Catalog" aria-label="Profiles and Catalog">⚙️</button>
+          <button type="button" id="btnOpenBackup" class="nav-btn" title="Data Backup & Accounting Export" aria-label="Data Backup">📤</button>
+        </div>
+      </div>
     </header>
 
     <!-- ===== MAIN FORM ===== -->
     <main class="main-content">
       <form id="qrForm" class="form-section" autocomplete="off" novalidate>
         
-        <!-- Name Input -->
-        <div class="input-group" id="nameGroup">
-          <label class="input-label" for="nameInput">Your Name</label>
-          <input 
-            type="text" 
-            class="input-field" 
-            id="nameInput" 
-            placeholder="e.g. Ravi Kumar"
-            autocomplete="name"
-            required
-          >
-          <span class="input-error" id="nameError"></span>
-        </div>
+        <!-- Hidden inputs preserving data binding for generator & scripts -->
+        <input type="hidden" id="nameInput">
+        <input type="hidden" id="upiInput">
 
-        <!-- UPI ID Input -->
-        <div class="input-group" id="upiGroup">
-          <label class="input-label" for="upiInput">UPI ID</label>
-          <input 
-            type="text" 
-            class="input-field" 
-            id="upiInput" 
-            placeholder="e.g. name@paytm"
-            inputmode="email"
-            autocomplete="off"
-            required
-          >
-          <span class="input-hint">Your UPI ID from GPay, PhonePe, Paytm etc.</span>
-          <span class="input-error" id="upiError"></span>
+        <!-- Active Merchant Account Banner Card -->
+        <div class="active-account-banner" id="activeAccountCard" role="button" tabindex="0" title="Click to switch accounts or edit profile details">
+          <div class="aab-avatar" id="aabAvatarDisplay">🏦</div>
+          <div class="aab-details">
+            <div class="aab-top-row">
+              <span class="aab-name" id="aabNameDisplay">Merchant Account</span>
+              <span class="aab-tag" id="aabTagDisplay">Active</span>
+            </div>
+            <p class="aab-upi" id="aabUpiDisplay">upi@bank</p>
+          </div>
+          <div class="aab-action">
+            <span class="aab-edit-btn">⚙️ Account</span>
+          </div>
         </div>
 
         <!-- Amount Input -->
         <div class="input-group" id="amountGroup">
-          <label class="input-label" for="amountInput">Amount</label>
+          <label class="input-label" for="amountInput">
+            <span>Amount</span>
+            <span class="calc-badge hidden" id="amountLockHint">🔒 Calculated from itemized bill</span>
+          </label>
           <div class="input-with-prefix">
             <span class="input-prefix">₹</span>
             <input 
               type="number" 
               class="input-field input-field--amount" 
               id="amountInput" 
-              placeholder="500"
+              placeholder="500 or leave blank for any amount"
               inputmode="numeric"
               min="1"
-              max="100000"
-              required
+              max="500000"
             >
           </div>
           <span class="input-error" id="amountError"></span>
@@ -103,17 +112,51 @@
             type="text" 
             class="input-field" 
             id="noteInput" 
-            placeholder="e.g. Rent July, Order #123"
+            placeholder="e.g. Rent July, Table 4 Order"
             autocomplete="off"
           >
         </div>
 
-        <!-- Save Profile -->
-        <label class="save-profile" for="saveProfileCheck">
-          <input type="checkbox" id="saveProfileCheck" checked>
-          <span class="checkbox-custom"></span>
-          <span class="save-profile-text">Remember my details</span>
-        </label>
+        <!-- ===== EXPANDABLE ITEMIZED BILL SECTION ===== -->
+        <div class="itemized-toggle-wrapper">
+          <button type="button" id="toggleItemizedBtn" class="btn-toggle-itemized">
+            <span id="toggleItemizedIcon">+</span>
+            <span id="toggleItemizedText">Add Itemized Breakdown (Qty × Price)</span>
+          </button>
+        </div>
+
+        <div id="itemizedSection" class="itemized-section hidden">
+          <div class="itemized-header">
+            <span class="ih-name">Item Name</span>
+            <span class="ih-qty">Qty</span>
+            <span class="ih-price">Price (₹)</span>
+            <span class="ih-total">Total</span>
+            <span class="ih-act"></span>
+          </div>
+
+          <!-- Item Rows Container -->
+          <div id="itemRowsContainer" class="item-rows-container">
+            <!-- Rows injected by JavaScript -->
+          </div>
+
+          <!-- Floating Autocomplete Suggestion List -->
+          <div id="autocompleteMenu" class="autocomplete-menu hidden">
+            <div id="autocompleteList" class="autocomplete-list"></div>
+          </div>
+
+          <div class="itemized-actions">
+            <button type="button" id="addItemRowBtn" class="btn-add-row">+ Add Another Item</button>
+            <button type="button" id="btnOpenCatalogQuick" class="btn-quick-catalog">📦 Open Catalog Menu</button>
+            <button type="button" id="clearItemsBtn" class="btn-clear-rows">Clear Items</button>
+          </div>
+          <div class="itemized-summary-box">
+            <span>Computed Grand Total:</span>
+            <strong id="computedTotalText">₹0</strong>
+          </div>
+        </div>
+
+        <!-- Hidden checkbox preserving state saving compatibility -->
+        <input type="checkbox" id="saveProfileCheck" checked style="display: none;">
 
         <!-- Generate Button -->
         <button type="submit" class="btn-generate" id="generateBtn">
@@ -125,7 +168,7 @@
             <rect x="16" y="12" width="2" height="6" rx="0.5" fill="currentColor"/>
             <rect x="12" y="16" width="6" height="2" rx="0.5" fill="currentColor"/>
           </svg>
-          <span id="generateBtnText">Generate QR Code</span>
+          <span id="generateBtnText">Generate QR & Placard</span>
         </button>
       </form>
 
@@ -137,6 +180,8 @@
             <div class="qr-header">
               <p class="qr-name-label" id="qrNameLabel"></p>
               <p class="qr-upi-label" id="qrUpiLabel"></p>
+              <p class="qr-card-amount" id="qrCardAmount"></p>
+              <p class="qr-card-note" id="qrCardNote"></p>
             </div>
             <div class="qr-divider"></div>
 
@@ -182,9 +227,265 @@
 
     <!-- ===== FOOTER ===== -->
     <footer class="app-footer">
-      <p>Your data stays on your device. No server, no tracking.</p>
-      <p>This is a QR generator, not a payment processor.</p>
+      <p>Your data stays entirely on your device. No servers, zero tracking.</p>
+      <p>PayQR Studio — Professional Offline-First Payment Suite.</p>
     </footer>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL 1: ONBOARDING SETUP WIZARD             -->
+  <!-- ============================================ -->
+  <div id="onboardingModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-onboard">
+      <div class="modal-header-banner">
+        <h2>Welcome to PayQR Studio 🚀</h2>
+        <p>Set up your receiving profile or restore your existing workspace instantly from a backup file!</p>
+        <div class="onboard-restore-banner">
+          <span>Have an exported backup?</span>
+          <label class="btn-restore-pill">
+            <span>📥 Restore JSON Backup</span>
+            <input type="file" id="onboardRestoreInput" accept=".json" class="hidden">
+          </label>
+        </div>
+        <div class="onboard-divider"><span>OR CREATE BRAND NEW PROFILE</span></div>
+      </div>
+      <form id="onboardingForm" class="onboard-form" autocomplete="off" novalidate>
+        <div class="input-group">
+          <label class="input-label" for="onboardLabel">Profile Label <span class="label-optional">(e.g. Shop Checkout, Freelance)</span></label>
+          <input type="text" class="input-field" id="onboardLabel" value="Store Checkout" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="onboardName">Payee Display Name</label>
+          <input type="text" class="input-field" id="onboardName" placeholder="Your Business or Personal Name" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="onboardUpi">Receiving UPI ID</label>
+          <input type="text" class="input-field" id="onboardUpi" placeholder="merchant@bank or phone@upi" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Select Placard Color Theme</label>
+          <div class="swatch-picker" id="onboardSwatches">
+            <button type="button" class="theme-swatch active" data-color="#00B86B" style="--swatch-col: #00B86B;" title="UPI Green"></button>
+            <button type="button" class="theme-swatch" data-color="#5f259f" style="--swatch-col: #5f259f;" title="PhonePe Purple"></button>
+            <button type="button" class="theme-swatch" data-color="#1a73e8" style="--swatch-col: #1a73e8;" title="GPay Blue"></button>
+            <button type="button" class="theme-swatch" data-color="#d4af37" style="--swatch-col: #d4af37;" title="Luxury Gold"></button>
+            <button type="button" class="theme-swatch" data-color="#475569" style="--swatch-col: #475569;" title="Elegant Slate"></button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="onboardLogoInput">Custom Brand Logo <span class="label-optional">(Centered in QR)</span></label>
+          <input type="file" id="onboardLogoInput" accept="image/*" class="file-input-custom">
+        </div>
+
+        <button type="submit" class="btn-generate btn-onboard-submit">Complete Setup & Launch Studio ⚡</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL 2: PROFILE MANAGER & SMART CATALOG     -->
+  <!-- ============================================ -->
+  <div id="profileManagerModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-large">
+      <div class="modal-top">
+        <div class="modal-tabs">
+          <button type="button" class="tab-btn active" data-tab="tabProfiles">🏷️ Profiles</button>
+          <button type="button" class="tab-btn" data-tab="tabCatalog">📦 Smart Catalog</button>
+        </div>
+        <button type="button" class="btn-close-modal" aria-label="Close modal">✕</button>
+      </div>
+
+      <!-- Tab 1: Profiles Management -->
+      <div id="tabProfiles" class="tab-content active">
+        <div class="profiles-split-view">
+          <div class="profiles-sidebar">
+            <div class="section-top">
+              <h3>Saved Profiles</h3>
+              <button type="button" id="btnCreateNewProfile" class="btn-small-accent">+ New</button>
+            </div>
+            <ul id="profilesList" class="profiles-list">
+              <!-- Rendered by JS -->
+            </ul>
+            <div class="sidebar-restore-section">
+              <label class="btn-restore-pill btn-full" title="Restore complete workspace from JSON backup file">
+                <span>📥 Restore JSON Backup...</span>
+                <input type="file" id="profRestoreInput" accept=".json" class="hidden">
+              </label>
+            </div>
+          </div>
+
+          <div class="profile-edit-pane">
+            <h3 id="profileEditTitle">Edit Profile</h3>
+            <form id="profileEditForm" class="profile-edit-form" autocomplete="off">
+              <input type="hidden" id="profId">
+              <div class="input-group">
+                <label class="input-label" for="profLabel">Profile Label</label>
+                <input type="text" id="profLabel" class="input-field" required>
+              </div>
+              <div class="input-group">
+                <label class="input-label" for="profName">Payee Display Name</label>
+                <input type="text" id="profName" class="input-field" required>
+              </div>
+              <div class="input-group">
+                <label class="input-label" for="profUpi">UPI ID</label>
+                <input type="text" id="profUpi" class="input-field" required>
+              </div>
+
+              <!-- Swatches + Custom Hex -->
+              <div class="input-group">
+                <label class="input-label">Theme Color Swatches</label>
+                <div class="swatch-picker" id="profEditSwatches">
+                  <button type="button" class="theme-swatch" data-color="#00B86B" style="--swatch-col: #00B86B;" title="UPI Green"></button>
+                  <button type="button" class="theme-swatch" data-color="#5f259f" style="--swatch-col: #5f259f;" title="PhonePe Purple"></button>
+                  <button type="button" class="theme-swatch" data-color="#1a73e8" style="--swatch-col: #1a73e8;" title="GPay Blue"></button>
+                  <button type="button" class="theme-swatch" data-color="#d4af37" style="--swatch-col: #d4af37;" title="Luxury Gold"></button>
+                  <button type="button" class="theme-swatch" data-color="#475569" style="--swatch-col: #475569;" title="Elegant Slate"></button>
+                  <div class="custom-hex-picker">
+                    <label for="profThemeHex" class="hex-label">Hex:</label>
+                    <input type="color" id="profThemeHex" class="color-picker-input" value="#00B86B">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Logo File Uploader -->
+              <div class="input-group">
+                <label class="input-label" for="profLogoInput">QR Center Logo Image</label>
+                <div class="logo-upload-wrapper">
+                  <div class="logo-preview-box" id="profLogoPreviewBox">
+                    <img id="profLogoPreview" src="" alt="Logo" class="hidden">
+                    <span id="profLogoPlaceholder">No Logo</span>
+                  </div>
+                  <div class="logo-controls">
+                    <input type="file" id="profLogoInput" accept="image/*" class="file-input-custom">
+                    <button type="button" id="btnRemoveLogo" class="btn-delete-small hidden">🗑️ Remove Logo</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-form-actions">
+                <button type="submit" class="btn-generate btn-save-prof">Save Profile Updates</button>
+                <button type="button" id="btnDeleteProf" class="btn-delete-profile hidden">Delete Profile</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Smart Autocomplete Catalog -->
+      <div id="tabCatalog" class="tab-content hidden">
+        <div class="catalog-header-note">
+          <p>Memory catalog for active profile: <strong id="catalogProfileBadge">Store Checkout</strong>. These items autocomplete automatically when typing bills!</p>
+        </div>
+
+        <!-- Add item manual form -->
+        <form id="addItemForm" class="add-item-form">
+          <input type="text" id="catNewName" class="input-field" placeholder="Item Name (e.g. Cold Coffee)" required>
+          <input type="number" id="catNewPrice" class="input-field input-cat-price" placeholder="Price ₹" min="0" required>
+          <button type="submit" class="btn-small-accent">+ Add Item</button>
+        </form>
+
+        <div class="catalog-list-wrapper">
+          <div class="catalog-table-header">
+            <span>Item Name</span>
+            <span>Default Price (₹)</span>
+            <span>Action</span>
+          </div>
+          <ul id="catalogList" class="catalog-list">
+            <!-- Rendered by JS -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL 3: RECENT INVOICES LEDGER              -->
+  <!-- ============================================ -->
+  <div id="ledgerModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-large">
+      <div class="modal-top">
+        <h2>📜 Recent Invoices & Bill Ledger</h2>
+        <button type="button" class="btn-close-modal" aria-label="Close modal">✕</button>
+      </div>
+      
+      <!-- Analytics Box -->
+      <div class="revenue-analytics-bar">
+        <div class="metric-card">
+          <span class="metric-label">Today's Total Volume</span>
+          <strong class="metric-value" id="dailyRevenueText">₹0</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">All-Time Invoiced</span>
+          <strong class="metric-value" id="allTimeRevenueText">₹0</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Total Bills Generated</span>
+          <strong class="metric-value" id="totalBillsCount">0</strong>
+        </div>
+      </div>
+
+      <div class="ledger-filter-bar">
+        <input type="text" id="ledgerSearchInput" class="input-field" placeholder="🔍 Filter bills by note, amount, or item name...">
+        <button type="button" id="btnClearAllLedger" class="btn-delete-small">🗑️ Clear All History</button>
+      </div>
+
+      <div class="ledger-list-wrapper">
+        <div id="ledgerEmptyState" class="empty-state-msg">No invoices logged yet. Generate your first bill to start building your offline ledger!</div>
+        <ul id="ledgerList" class="ledger-list">
+          <!-- Rendered by JS -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL 4: DATA PORTABILITY & BACKUP           -->
+  <!-- ============================================ -->
+  <div id="backupModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-medium">
+      <div class="modal-top">
+        <h2>📤 Data Portability & Backups</h2>
+        <button type="button" class="btn-close-modal" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="backup-sections-container">
+        <!-- Full System Backup (JSON) -->
+        <div class="backup-card">
+          <div class="bc-header">
+            <h3>🗄️ System Backup & Restore (JSON)</h3>
+            <p>Save or restore your entire workspace, including all customized profiles, logo images, smart item catalogs, and historical bill logs.</p>
+          </div>
+          <div class="bc-actions">
+            <button type="button" id="btnDownloadJson" class="btn-backup-primary">
+              <span>📥 Download Complete Backup (.json)</span>
+            </button>
+            <label class="btn-backup-restore">
+              <span>📤 Restore from Backup File...</span>
+              <input type="file" id="btnUploadJson" accept=".json" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <!-- Accounting Export (CSV) -->
+        <div class="backup-card">
+          <div class="bc-header">
+            <h3>📊 Invoice Spreadsheet Export (CSV)</h3>
+            <p>Export your Recent Invoices Ledger into a standardized spreadsheet formatted with individual line items, timestamps, and totals for Excel or tax reporting.</p>
+          </div>
+          <div class="bc-actions">
+            <button type="button" id="btnExportCsv" class="btn-csv-export">
+              <span>📈 Download Invoice Spreadsheet (.csv)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- Floating Studio Toast Notification -->
+  <div id="payqrToast" class="payqr-toast hidden" role="alert">
+    <span id="toastIcon">✓</span>
+    <span id="toastMessage">Action completed successfully!</span>
   </div>
 
   <!-- QR Code Library -->

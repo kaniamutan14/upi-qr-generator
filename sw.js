@@ -2,7 +2,7 @@
 // PayQR Service Worker — Offline Support
 // ============================================
 
-const CACHE_NAME = 'payqr-v3';
+const CACHE_NAME = 'payqr-studio-v11';
 const APP_SHELL = [
   '/',
   '/index.html',
