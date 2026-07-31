@@ -1,18 +1,18 @@
-# 📲 PayQR — Instant Mobile-First UPI QR & Merchant Placard Generator
+# 📲 PayQR Studio — Offline-First Payment Suite & Merchant Placard Generator
 
-A state-of-the-art, 100% client-side **Progressive Web App (PWA)** designed to generate styled UPI payment QR codes and comprehensive merchant payment placards instantly. Built entirely with vanilla web technologies—no backends, no databases, and zero tracking.
+A state-of-the-art, 100% client-side **Progressive Web App (PWA) and Merchant Studio** designed to generate branded UPI payment QR codes, manage multi-profile checkouts, itemize billing invoices, and track revenue analytics offline. Built with Astro, Vite, Workbox, and pure vanilla CSS/JS—no backends, no databases, and zero external tracking.
 
 ---
 
 ## 🌟 Key Features
 
-- **🎨 Merchant Payment Placards:** Dynamically generates a clean, professional payment card that places your **Name** and **UPI ID** at the top of the QR code and embeds **numbered scanning steps & WhatsApp instructions** directly at the bottom.
-- **⚡ 100% Offline & Client-Side:** Operates entirely inside your browser. No KYC, no external payment server processing, and zero third-party data tracking—your information stays entirely on your device.
-- **📱 Progressive Web App (PWA):** Equipped with a customized `manifest.json` and offline Service Worker (`sw.js`). Can be installed directly onto Android and iOS home screens, functioning completely offline without an active internet connection.
-- **📤 Native WhatsApp & Image Sharing:** Leverages the modern **Web Share API** and HTML5 Canvas API to construct and export **2x HD resolution (Retina-ready)** composite PNG images that users can share directly to WhatsApp, Telegram, or email with a single tap.
-- **💾 Local Storage Profile Saving:** Optionally remembers your name and UPI ID in browser local storage, making repeated QR generation effortless.
-- **✨ Premium Dark Mode Aesthetics:** Crafted with a modern dark mode design system (`#0a0a0f` deep canvas, `#00B86B` vibrant UPI green accents), sleek micro-animations, and touch-optimized input targets.
-
+- **🎨 Multi-Profile Merchant Studio & Custom Branding:** Create and effortlessly switch between multiple business or checkout profiles. Customize each profile with curated theme color swatches (UPI Green, PhonePe Purple, GPay Blue, Luxury Gold, Elegant Slate, or custom hex) and upload central brand logos with automatic HTML5 Canvas compression and embedding.
+- **📝 Expandable Itemized Billing & Smart Autocomplete:** Generate itemized bill breakdown tables on the fly with automatic grand total calculation and amount locking. Features an intuitive responsive card grid layout for mobile screens and an intelligent autocomplete catalog memory bank that stores and recalls frequently billed items.
+- **📊 Invoice Analytics Ledger & Quick Reissue:** Maintains a capped, quota-optimized local transaction ledger with real-time cumulative daily and all-time revenue metrics. Easily re-open and duplicate past invoices with a single click for fast re-billing.
+- **🛡️ Enterprise Data Security & Portability:** Complete workspace backup import/export capabilities via JSON. Hardened with comprehensive runtime type normalization, DOM XSS escaping, and industrial-grade accounting spreadsheet CSV export protected against CSV formula injection (DDE attacks).
+- **⚡ 100% Offline-First Architecture:** Powered by `@vite-pwa/astro` and Workbox with local bundling of the QR styling engine (no external CDN network dependency). Installable directly onto Android and iOS home screens, loading instantaneously anywhere without internet connectivity.
+- **📤 Native WhatsApp & 2x Retina Placards:** Leverages the modern **Web Share API** and Canvas API to construct and export **2x HD resolution** composite PNG placards complete with payee details, verified branding dots, and step-by-step scanning guides for one-tap sharing via WhatsApp or Email.
+- **✨ Premium Glassmorphic UI:** Built with a high-performance custom vanilla CSS design system featuring touch-scrolling modals, smooth animations, safe-area adaptation, and immersive deep dark mode ergonomics (`#0a0a0f`).
 ---
 
 ## 🛠️ Technology Stack
