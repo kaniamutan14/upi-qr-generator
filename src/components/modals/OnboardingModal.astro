@@ -1,0 +1,52 @@
+---
+// Modal 1: Onboarding Setup Wizard
+---
+
+<div id="onboardingModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-card modal-onboard">
+    <div class="modal-header-banner">
+      <h2>Welcome to PayQR Studio 🚀</h2>
+      <p>Set up your receiving profile or restore your existing workspace instantly from a backup file!</p>
+      <div class="onboard-restore-banner">
+        <span>Have an exported backup?</span>
+        <label class="btn-restore-pill">
+          <span>📥 Restore JSON Backup</span>
+          <input type="file" id="onboardRestoreInput" accept=".json" class="hidden">
+        </label>
+      </div>
+      <div class="onboard-divider"><span>OR CREATE BRAND NEW PROFILE</span></div>
+    </div>
+    <form id="onboardingForm" class="onboard-form" autocomplete="off" novalidate>
+      <div class="input-group">
+        <label class="input-label" for="onboardLabel">Profile Label <span class="label-optional">(e.g. Shop Checkout, Freelance)</span></label>
+        <input type="text" class="input-field" id="onboardLabel" value="Store Checkout" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="onboardName">Payee Display Name</label>
+        <input type="text" class="input-field" id="onboardName" placeholder="Your Business or Personal Name" required>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="onboardUpi">Receiving UPI ID</label>
+        <input type="text" class="input-field" id="onboardUpi" placeholder="merchant@bank or phone@upi" required>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Select Placard Color Theme</label>
+        <div class="swatch-picker" id="onboardSwatches">
+          <button type="button" class="theme-swatch active" data-color="#00B86B" style="--swatch-col: #00B86B;" title="UPI Green"></button>
+          <button type="button" class="theme-swatch" data-color="#5f259f" style="--swatch-col: #5f259f;" title="PhonePe Purple"></button>
+          <button type="button" class="theme-swatch" data-color="#1a73e8" style="--swatch-col: #1a73e8;" title="GPay Blue"></button>
+          <button type="button" class="theme-swatch" data-color="#d4af37" style="--swatch-col: #d4af37;" title="Luxury Gold"></button>
+          <button type="button" class="theme-swatch" data-color="#475569" style="--swatch-col: #475569;" title="Elegant Slate"></button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="onboardLogoInput">Custom Brand Logo <span class="label-optional">(Centered in QR)</span></label>
+        <input type="file" id="onboardLogoInput" accept="image/*" class="file-input-custom">
+      </div>
+
+      <button type="submit" class="btn-generate btn-onboard-submit">Complete Setup & Launch Studio ⚡</button>
+    </form>
+  </div>
+</div>

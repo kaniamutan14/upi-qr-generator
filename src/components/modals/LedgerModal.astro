@@ -1,0 +1,40 @@
+---
+// Modal 3: Recent Invoices Ledger
+---
+
+<div id="ledgerModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-card modal-large">
+    <div class="modal-top">
+      <h2>📜 Recent Invoices & Bill Ledger</h2>
+      <button type="button" class="btn-close-modal" aria-label="Close modal">✕</button>
+    </div>
+    
+    <!-- Analytics Box -->
+    <div class="revenue-analytics-bar">
+      <div class="metric-card">
+        <span class="metric-label">Today's Total Volume</span>
+        <strong class="metric-value" id="dailyRevenueText">₹0</strong>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">All-Time Invoiced</span>
+        <strong class="metric-value" id="allTimeRevenueText">₹0</strong>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Total Bills Generated</span>
+        <strong class="metric-value" id="totalBillsCount">0</strong>
+      </div>
+    </div>
+
+    <div class="ledger-filter-bar">
+      <input type="text" id="ledgerSearchInput" class="input-field" placeholder="🔍 Filter bills by note, amount, or item name...">
+      <button type="button" id="btnClearAllLedger" class="btn-delete-small">🗑️ Clear All History</button>
+    </div>
+
+    <div class="ledger-list-wrapper">
+      <div id="ledgerEmptyState" class="empty-state-msg">No invoices logged yet. Generate your first bill to start building your offline ledger!</div>
+      <ul id="ledgerList" class="ledger-list">
+        <!-- Rendered by JS -->
+      </ul>
+    </div>
+  </div>
+</div>

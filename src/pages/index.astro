@@ -1,0 +1,28 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Header from '../components/Header.astro';
+import QrForm from '../components/QrForm.astro';
+import QrDisplay from '../components/QrDisplay.astro';
+import Footer from '../components/Footer.astro';
+import OnboardingModal from '../components/modals/OnboardingModal.astro';
+import ProfileManagerModal from '../components/modals/ProfileManagerModal.astro';
+import LedgerModal from '../components/modals/LedgerModal.astro';
+import BackupModal from '../components/modals/BackupModal.astro';
+---
+
+<MainLayout>
+  <Header />
+  
+  <main class="main-content">
+    <QrForm />
+    <QrDisplay />
+  </main>
+
+  <Footer />
+
+  <!-- Interactive Overlaid Modals -->
+  <OnboardingModal />
+  <ProfileManagerModal />
+  <LedgerModal />
+  <BackupModal />
+</MainLayout>

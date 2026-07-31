@@ -1,0 +1,20 @@
+{
+  "name": "payqr-studio",
+  "type": "module",
+  "version": "2.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^4.16.0",
+    "qr-code-styling": "^1.8.4"
+  },
+  "devDependencies": {
+    "@vite-pwa/astro": "^0.4.0",
+    "workbox-window": "^7.1.0"
+  }
+}

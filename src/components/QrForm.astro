@@ -1,0 +1,100 @@
+---
+import AccountBanner from './AccountBanner.astro';
+---
+
+<form id="qrForm" class="form-section" autocomplete="off" novalidate>
+  
+  <!-- Hidden inputs preserving data binding for generator & scripts -->
+  <input type="hidden" id="nameInput">
+  <input type="hidden" id="upiInput">
+
+  <!-- Active Merchant Account Banner Card -->
+  <AccountBanner />
+
+  <!-- Amount Input -->
+  <div class="input-group" id="amountGroup">
+    <label class="input-label" for="amountInput">
+      <span>Amount</span>
+      <span class="calc-badge hidden" id="amountLockHint">🔒 Calculated from itemized bill</span>
+    </label>
+    <div class="input-with-prefix">
+      <span class="input-prefix">₹</span>
+      <input 
+        type="number" 
+        class="input-field input-field--amount" 
+        id="amountInput" 
+        placeholder="500 or leave blank for any amount"
+        inputmode="numeric"
+        min="1"
+        max="500000"
+      >
+    </div>
+    <span class="input-error" id="amountError"></span>
+  </div>
+
+  <!-- Note Input -->
+  <div class="input-group" id="noteGroup">
+    <label class="input-label" for="noteInput">Note <span class="label-optional">(optional)</span></label>
+    <input 
+      type="text" 
+      class="input-field" 
+      id="noteInput" 
+      placeholder="e.g. Rent July, Table 4 Order"
+      autocomplete="off"
+    >
+  </div>
+
+  <!-- ===== EXPANDABLE ITEMIZED BILL SECTION ===== -->
+  <div class="itemized-toggle-wrapper">
+    <button type="button" id="toggleItemizedBtn" class="btn-toggle-itemized">
+      <span id="toggleItemizedIcon">+</span>
+      <span id="toggleItemizedText">Add Itemized Breakdown (Qty × Price)</span>
+    </button>
+  </div>
+
+  <div id="itemizedSection" class="itemized-section hidden">
+    <div class="itemized-header">
+      <span class="ih-name">Item Name</span>
+      <span class="ih-qty">Qty</span>
+      <span class="ih-price">Price (₹)</span>
+      <span class="ih-total">Total</span>
+      <span class="ih-act"></span>
+    </div>
+
+    <!-- Item Rows Container -->
+    <div id="itemRowsContainer" class="item-rows-container">
+      <!-- Rows injected by JavaScript -->
+    </div>
+
+    <!-- Floating Autocomplete Suggestion List -->
+    <div id="autocompleteMenu" class="autocomplete-menu hidden">
+      <div id="autocompleteList" class="autocomplete-list"></div>
+    </div>
+
+    <div class="itemized-actions">
+      <button type="button" id="addItemRowBtn" class="btn-add-row">+ Add Another Item</button>
+      <button type="button" id="btnOpenCatalogQuick" class="btn-quick-catalog">📦 Open Catalog Menu</button>
+      <button type="button" id="clearItemsBtn" class="btn-clear-rows">Clear Items</button>
+    </div>
+    <div class="itemized-summary-box">
+      <span>Computed Grand Total:</span>
+      <strong id="computedTotalText">₹0</strong>
+    </div>
+  </div>
+
+  <!-- Hidden checkbox preserving state saving compatibility -->
+  <input type="checkbox" id="saveProfileCheck" checked style="display: none;">
+
+  <!-- Generate Button -->
+  <button type="submit" class="btn-generate" id="generateBtn">
+    <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="6" height="6" rx="1" fill="currentColor"/>
+      <rect x="12" y="2" width="6" height="6" rx="1" fill="currentColor"/>
+      <rect x="2" y="12" width="6" height="6" rx="1" fill="currentColor"/>
+      <rect x="12" y="12" width="3" height="3" rx="0.5" fill="currentColor"/>
+      <rect x="16" y="12" width="2" height="6" rx="0.5" fill="currentColor"/>
+      <rect x="12" y="16" width="6" height="2" rx="0.5" fill="currentColor"/>
+    </svg>
+    <span id="generateBtnText">Generate QR & Placard</span>
+  </button>
+</form>

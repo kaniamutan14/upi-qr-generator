@@ -1,0 +1,116 @@
+---
+// Modal 2: Profile Manager & Smart Catalog
+---
+
+<div id="profileManagerModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-card modal-large">
+    <div class="modal-top">
+      <div class="modal-tabs">
+        <button type="button" class="tab-btn active" data-tab="tabProfiles">🏷️ Profiles</button>
+        <button type="button" class="tab-btn" data-tab="tabCatalog">📦 Smart Catalog</button>
+      </div>
+      <button type="button" class="btn-close-modal" aria-label="Close modal">✕</button>
+    </div>
+
+    <!-- Tab 1: Profiles Management -->
+    <div id="tabProfiles" class="tab-content active">
+      <div class="profiles-split-view">
+        <div class="profiles-sidebar">
+          <div class="section-top">
+            <h3>Saved Profiles</h3>
+            <button type="button" id="btnCreateNewProfile" class="btn-small-accent">+ New</button>
+          </div>
+          <ul id="profilesList" class="profiles-list">
+            <!-- Rendered by JS -->
+          </ul>
+          <div class="sidebar-restore-section">
+            <label class="btn-restore-pill btn-full" title="Restore complete workspace from JSON backup file">
+              <span>📥 Restore JSON Backup...</span>
+              <input type="file" id="profRestoreInput" accept=".json" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <div class="profile-edit-pane">
+          <h3 id="profileEditTitle">Edit Profile</h3>
+          <form id="profileEditForm" class="profile-edit-form" autocomplete="off">
+            <input type="hidden" id="profId">
+            <div class="input-group">
+              <label class="input-label" for="profLabel">Profile Label</label>
+              <input type="text" id="profLabel" class="input-field" required>
+            </div>
+            <div class="input-group">
+              <label class="input-label" for="profName">Payee Display Name</label>
+              <input type="text" id="profName" class="input-field" required>
+            </div>
+            <div class="input-group">
+              <label class="input-label" for="profUpi">UPI ID</label>
+              <input type="text" id="profUpi" class="input-field" required>
+            </div>
+
+            <!-- Swatches + Custom Hex -->
+            <div class="input-group">
+              <label class="input-label">Theme Color Swatches</label>
+              <div class="swatch-picker" id="profEditSwatches">
+                <button type="button" class="theme-swatch" data-color="#00B86B" style="--swatch-col: #00B86B;" title="UPI Green"></button>
+                <button type="button" class="theme-swatch" data-color="#5f259f" style="--swatch-col: #5f259f;" title="PhonePe Purple"></button>
+                <button type="button" class="theme-swatch" data-color="#1a73e8" style="--swatch-col: #1a73e8;" title="GPay Blue"></button>
+                <button type="button" class="theme-swatch" data-color="#d4af37" style="--swatch-col: #d4af37;" title="Luxury Gold"></button>
+                <button type="button" class="theme-swatch" data-color="#475569" style="--swatch-col: #475569;" title="Elegant Slate"></button>
+                <div class="custom-hex-picker">
+                  <label for="profThemeHex" class="hex-label">Hex:</label>
+                  <input type="color" id="profThemeHex" class="color-picker-input" value="#00B86B">
+                </div>
+              </div>
+            </div>
+
+            <!-- Logo File Uploader -->
+            <div class="input-group">
+              <label class="input-label" for="profLogoInput">QR Center Logo Image</label>
+              <div class="logo-upload-wrapper">
+                <div class="logo-preview-box" id="profLogoPreviewBox">
+                  <img id="profLogoPreview" src="" alt="Logo" class="hidden">
+                  <span id="profLogoPlaceholder">No Logo</span>
+                </div>
+                <div class="logo-controls">
+                  <input type="file" id="profLogoInput" accept="image/*" class="file-input-custom">
+                  <button type="button" id="btnRemoveLogo" class="btn-delete-small hidden">🗑️ Remove Logo</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-form-actions">
+              <button type="submit" class="btn-generate btn-save-prof">Save Profile Updates</button>
+              <button type="button" id="btnDeleteProf" class="btn-delete-profile hidden">Delete Profile</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Smart Autocomplete Catalog -->
+    <div id="tabCatalog" class="tab-content hidden">
+      <div class="catalog-header-note">
+        <p>Memory catalog for active profile: <strong id="catalogProfileBadge">Store Checkout</strong>. These items autocomplete automatically when typing bills!</p>
+      </div>
+
+      <!-- Add item manual form -->
+      <form id="addItemForm" class="add-item-form">
+        <input type="text" id="catNewName" class="input-field" placeholder="Item Name (e.g. Cold Coffee)" required>
+        <input type="number" id="catNewPrice" class="input-field input-cat-price" placeholder="Price ₹" min="0" required>
+        <button type="submit" class="btn-small-accent">+ Add Item</button>
+      </form>
+
+      <div class="catalog-list-wrapper">
+        <div class="catalog-table-header">
+          <span>Item Name</span>
+          <span>Default Price (₹)</span>
+          <span>Action</span>
+        </div>
+        <ul id="catalogList" class="catalog-list">
+          <!-- Rendered by JS -->
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

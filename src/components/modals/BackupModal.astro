@@ -1,0 +1,44 @@
+---
+// Modal 4: Data Portability & Backup
+---
+
+<div id="backupModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-card modal-medium">
+    <div class="modal-top">
+      <h2>📤 Data Portability & Backups</h2>
+      <button type="button" class="btn-close-modal" aria-label="Close modal">✕</button>
+    </div>
+
+    <div class="backup-sections-container">
+      <!-- Full System Backup (JSON) -->
+      <div class="backup-card">
+        <div class="bc-header">
+          <h3>🗄️ System Backup & Restore (JSON)</h3>
+          <p>Save or restore your entire workspace, including all customized profiles, logo images, smart item catalogs, and historical bill logs.</p>
+        </div>
+        <div class="bc-actions">
+          <button type="button" id="btnDownloadJson" class="btn-backup-primary">
+            <span>📥 Download Complete Backup (.json)</span>
+          </button>
+          <label class="btn-backup-restore">
+            <span>📤 Restore from Backup File...</span>
+            <input type="file" id="btnUploadJson" accept=".json" class="hidden">
+          </label>
+        </div>
+      </div>
+
+      <!-- Accounting Export (CSV) -->
+      <div class="backup-card">
+        <div class="bc-header">
+          <h3>📊 Invoice Spreadsheet Export (CSV)</h3>
+          <p>Export your Recent Invoices Ledger into a standardized spreadsheet formatted with individual line items, timestamps, and totals for Excel or tax reporting.</p>
+        </div>
+        <div class="bc-actions">
+          <button type="button" id="btnExportCsv" class="btn-csv-export">
+            <span>📈 Download Invoice Spreadsheet (.csv)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

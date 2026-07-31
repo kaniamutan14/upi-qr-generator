@@ -1,0 +1,35 @@
+---
+// Header & Top Navigation Controls
+---
+
+<header class="app-header">
+  <div class="header-brand">
+    <div class="app-logo">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="var(--accent)" fill-opacity="0.2"/>
+        <rect x="6" y="6" width="8" height="8" rx="2" fill="var(--accent)"/>
+        <rect x="18" y="6" width="8" height="8" rx="2" fill="var(--accent)"/>
+        <rect x="6" y="18" width="8" height="8" rx="2" fill="var(--accent)"/>
+        <rect x="18" y="18" width="4" height="4" rx="1" fill="var(--accent)"/>
+        <rect x="24" y="18" width="2" height="8" rx="1" fill="var(--accent)"/>
+        <rect x="18" y="24" width="8" height="2" rx="1" fill="var(--accent)"/>
+      </svg>
+    </div>
+    <h1 class="app-title">PayQR <span class="badge-pro">Studio</span></h1>
+  </div>
+
+  <!-- Active Profile Pill & Nav Icons -->
+  <div class="header-controls">
+    <button type="button" id="activeProfileBtn" class="btn-profile-switcher" title="Switch Profile or Manage Catalog">
+      <span class="profile-dot"></span>
+      <span id="activeProfileLabel">Store Checkout</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="nav-icons">
+      <button type="button" id="btnOpenCatalogNav" class="nav-btn nav-btn-catalog" title="Smart Item Catalog & Menu" aria-label="Smart Catalog">📦</button>
+      <button type="button" id="btnOpenLedger" class="nav-btn" title="Recent Invoices Ledger" aria-label="Recent Invoices">📜</button>
+      <button type="button" id="btnOpenProfileManager" class="nav-btn" title="Manage Profiles & Catalog" aria-label="Profiles and Catalog">⚙️</button>
+      <button type="button" id="btnOpenBackup" class="nav-btn" title="Data Backup & Accounting Export" aria-label="Data Backup">📤</button>
+    </div>
+  </div>
+</header>
