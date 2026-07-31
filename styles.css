@@ -1,0 +1,638 @@
+/* ============================================
+   PayQR — Mobile-First Premium Dark Theme
+   UPI QR Code Generator PWA
+   ============================================ */
+
+/* ---- CSS Custom Properties ---- */
+:root {
+  --bg: #0a0a0f;
+  --surface: #141420;
+  --surface-hover: #1a1a2e;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(0, 184, 107, 0.4);
+  --text-primary: #f0f0f5;
+  --text-secondary: #8888a0;
+  --accent: #00B86B;
+  --accent-hover: #00d67e;
+  --accent-glow: rgba(0, 184, 107, 0.2);
+  --accent-glow-strong: rgba(0, 184, 107, 0.35);
+  --whatsapp: #25D366;
+  --whatsapp-hover: #2be675;
+  --error: #ff4757;
+  --error-bg: rgba(255, 71, 87, 0.1);
+  --radius: 14px;
+  --radius-lg: 20px;
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ---- Reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- Base ---- */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+  min-height: 100dvh;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+/* ---- App Layout ---- */
+.app-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Header ---- */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 24px;
+}
+
+.app-logo {
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), #4aeaaa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+/* ---- Form Section ---- */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.input-group:focus-within .input-label {
+  color: var(--accent);
+}
+
+.label-optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.6;
+}
+
+.input-field {
+  height: 52px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 16px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: var(--font);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.input-field::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: var(--surface-hover);
+}
+
+/* Amount input with ₹ prefix */
+.input-with-prefix {
+  position: relative;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-field--amount {
+  padding-left: 38px;
+}
+
+/* Remove number input spinners */
+.input-field--amount::-webkit-outer-spin-button,
+.input-field--amount::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.input-field--amount[type=number] {
+  -moz-appearance: textfield;
+}
+
+.input-hint {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Validation error styles */
+.input-error {
+  font-size: 0.75rem;
+  color: var(--error);
+  min-height: 0;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  display: none;
+}
+
+.input-group.error .input-field {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px var(--error-bg);
+}
+
+.input-group.error .input-error {
+  display: block;
+}
+
+.input-group.error .input-label {
+  color: var(--error);
+}
+
+/* ---- Save Profile Checkbox ---- */
+.save-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  padding: 4px 0;
+}
+
+.save-profile input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.checkbox-custom::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--accent);
+  transform: scale(0);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.save-profile input:checked + .checkbox-custom {
+  border-color: var(--accent);
+}
+
+.save-profile input:checked + .checkbox-custom::after {
+  transform: scale(1);
+}
+
+.save-profile-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* ---- Buttons ---- */
+.btn-generate {
+  width: 100%;
+  height: 56px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 1.05rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  margin-top: 6px;
+}
+
+.btn-generate:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px var(--accent-glow-strong);
+}
+
+.btn-generate:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.btn-generate.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.btn-generate.success {
+  background: #0d9e5c;
+}
+
+.btn-icon {
+  flex-shrink: 0;
+}
+
+/* Action Buttons Group */
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-whatsapp {
+  width: 100%;
+  height: 52px;
+  background: var(--whatsapp);
+  color: #fff;
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.25);
+}
+
+.btn-whatsapp:hover {
+  background: var(--whatsapp-hover);
+  transform: translateY(-1px);
+}
+
+.btn-whatsapp:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.btn-download {
+  width: 100%;
+  height: 52px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-weight: 500;
+  font-size: 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.btn-download:hover {
+  background: var(--surface);
+  border-color: var(--text-secondary);
+}
+
+.btn-download:active {
+  transform: scale(0.97);
+}
+
+.btn-download.success {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---- QR Display Section ---- */
+.qr-section {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 0;
+}
+
+.qr-section.visible {
+  opacity: 1;
+  max-height: 2000px;
+  margin-top: 28px;
+  overflow: visible;
+}
+
+.qr-card {
+  text-align: center;
+}
+
+.qr-container {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.08);
+  margin: 0 auto;
+  max-width: 320px;
+}
+
+.qr-header {
+  text-align: center;
+  width: 100%;
+}
+
+.qr-name-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: 0.01em;
+  margin: 0 0 2px 0;
+  text-align: center;
+}
+
+.qr-upi-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #6b6b80;
+  text-align: center;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.qr-divider {
+  width: 100%;
+  height: 1.5px;
+  background: #e8e8ee;
+  margin: 2px 0;
+}
+
+.qr-inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.qr-instructions {
+  width: 100%;
+  text-align: left;
+}
+
+.qr-inst-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.qr-inst-step {
+  font-size: 0.8rem;
+  color: #444456;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px 0;
+  line-height: 1.35;
+}
+
+.qr-inst-step strong {
+  color: #1a1a2e;
+}
+
+.qr-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00B86B;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.qr-subdivider {
+  height: 1px;
+  background: #f0f0f5;
+  margin: 10px 0;
+}
+
+.qr-inst-wa {
+  font-size: 0.76rem;
+  color: #555568;
+  line-height: 1.45;
+  margin: 0;
+  text-align: center;
+}
+
+.qr-inst-wa strong {
+  color: #00965e;
+}
+
+.qr-section.visible .qr-container {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.qr-container canvas {
+  border-radius: 8px;
+}
+
+.qr-amount-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-top: 18px;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.qr-payee-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* ---- Footer ---- */
+.app-footer {
+  margin-top: auto;
+  padding: 24px 0 8px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  line-height: 1.7;
+}
+
+/* ---- Animations ---- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* Form entry animation */
+.main-content {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* ---- Responsive ---- */
+@media (min-width: 640px) {
+  .app-container {
+    padding: 24px 32px;
+  }
+
+  .input-field {
+    height: 54px;
+  }
+
+  .btn-generate {
+    height: 58px;
+  }
+
+  .btn-group {
+    flex-direction: row;
+  }
+
+  .btn-whatsapp,
+  .btn-download {
+    flex: 1;
+  }
+}
+
+/* ---- Landscape phone fix ---- */
+@media (max-height: 500px) and (orientation: landscape) {
+  .app-container {
+    min-height: auto;
+  }
+}
+
+/* ---- Accessibility ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---- Print ---- */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .form-section,
+  .btn-group,
+  .save-profile,
+  .app-footer,
+  .btn-generate {
+    display: none !important;
+  }
+
+  .qr-section {
+    opacity: 1 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .qr-container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .qr-amount-text,
+  .qr-payee-text {
+    color: #000;
+  }
+}

@@ -1,0 +1,23 @@
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data / node dependencies
+node_modules/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+*.swp
+*.~*
+
+# IDE / Editor configuration
+.vscode/
+.idea/
+
+# Antigravity temporary data
+.gemini/
+.system_generated/
+scratch/
