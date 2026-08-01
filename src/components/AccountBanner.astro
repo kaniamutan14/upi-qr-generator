@@ -1,17 +1,36 @@
 ---
-// Active Merchant Account Banner Card
+// Active Merchant Account Banner Card & Display Preferences Hub
 ---
 
-<div class="active-account-banner" id="activeAccountCard" role="button" tabindex="0" title="Click to switch accounts or edit profile details">
-  <div class="aab-avatar" id="aabAvatarDisplay">🏦</div>
-  <div class="aab-details">
-    <div class="aab-top-row">
-      <span class="aab-name" id="aabNameDisplay">Merchant Account</span>
-      <span class="aab-tag" id="aabTagDisplay">Active</span>
+<div class="account-banner-wrapper">
+  <div class="active-account-banner" id="activeAccountCard" role="button" tabindex="0" title="Click to switch accounts or edit profile details">
+    <div class="aab-avatar" id="aabAvatarDisplay">🏦</div>
+    <div class="aab-details">
+      <div class="aab-top-row">
+        <span class="aab-name" id="aabNameDisplay">Merchant Account</span>
+        <span class="aab-tag" id="aabTagDisplay">Active</span>
+      </div>
+      <p class="aab-upi" id="aabUpiDisplay">upi@bank</p>
     </div>
-    <p class="aab-upi" id="aabUpiDisplay">upi@bank</p>
+    <div class="aab-action">
+      <span class="aab-edit-btn">🔄 Change</span>
+    </div>
   </div>
-  <div class="aab-action">
-    <span class="aab-edit-btn">⚙️ Account</span>
+
+  <div class="banner-display-controls" aria-label="Display & Theme Preferences">
+    <div class="theme-switch-wrapper">
+      <button type="button" id="btnThemeToggle" class="control-pill-btn" title="Toggle Light / Dark Theme">
+        <span id="themeToggleIcon">🌙 Dark Theme</span>
+      </button>
+    </div>
+    <div class="font-size-wrapper">
+      <span class="font-control-label">Text:</span>
+      <div class="font-btn-group">
+        <button type="button" id="btnFontDec" class="font-btn" title="Decrease Font Size" aria-label="Smaller Text">A-</button>
+        <span id="fontSizeIndicator" class="font-size-indicator">Normal</span>
+        <button type="button" id="btnFontInc" class="font-btn" title="Increase Font Size" aria-label="Larger Text">A+</button>
+      </div>
+    </div>
   </div>
 </div>
+

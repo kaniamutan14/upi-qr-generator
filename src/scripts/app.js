@@ -758,7 +758,19 @@ document.addEventListener('DOMContentLoaded', () => {
     activeAccountCard.addEventListener('click', () => {
       renderProfilesList();
       loadProfileIntoEditor(getActiveProfile());
-      openModal(profileManagerModal);
+      if (profileManagerModal) {
+        profileManagerModal.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active', 'hidden'));
+        profileManagerModal.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+        
+        const profBtn = profileManagerModal.querySelector('[data-tab="tabProfiles"]');
+        const catBtn = profileManagerModal.querySelector('[data-tab="tabCatalog"]');
+        const profTab = document.getElementById('tabProfiles');
+        if (profBtn) profBtn.classList.add('active');
+        if (catBtn) catBtn.classList.add('hidden'); // De-duplicate: hide catalog tab when in account profile settings
+        if (profTab) profTab.classList.remove('hidden');
+
+        openModal(profileManagerModal);
+      }
     });
   }
 
@@ -770,11 +782,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCatalogList(prof);
 
     if (profileManagerModal) {
-      profileManagerModal.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
+      profileManagerModal.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active', 'hidden'));
       profileManagerModal.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
       
+      const profBtn = profileManagerModal.querySelector('[data-tab="tabProfiles"]');
       const catBtn = profileManagerModal.querySelector('[data-tab="tabCatalog"]');
       const catTab = document.getElementById('tabCatalog');
+      if (profBtn) profBtn.classList.add('hidden'); // De-duplicate: hide profile settings when browsing item catalog
       if (catBtn) catBtn.classList.add('active');
       if (catTab) catTab.classList.remove('hidden');
 
@@ -880,9 +894,13 @@ document.addEventListener('DOMContentLoaded', () => {
       rowDiv.className = 'item-row';
       rowDiv.id = `item_row_${row.id}`;
       rowDiv.innerHTML = `
-        <input type="text" class="item-name-input" placeholder="Item Name (e.g. Latte)" value="${escapeHTML(row.name)}">
-        <input type="number" class="item-qty-input" value="${safeAmount(row.qty, 1)}" min="1">
-        <input type="number" class="item-price-input" placeholder="0" value="${safeAmount(row.price) || ''}" min="0">
+        <input type="text" class="item-name-input" placeholder="Item Name (e.g. Latte)" value="${escapeHTML(row.name)}" enterkeyhint="next" autocomplete="off">
+        <div class="item-qty-wrapper" data-label="Qty">
+          <input type="text" inputmode="numeric" class="item-qty-input" value="${safeAmount(row.qty, 1)}" placeholder="1" enterkeyhint="next" autocomplete="off">
+        </div>
+        <div class="item-price-wrapper" data-label="Price (₹)">
+          <input type="text" inputmode="decimal" class="item-price-input" placeholder="0" value="${safeAmount(row.price) || ''}" enterkeyhint="next" autocomplete="off">
+        </div>
         <span class="item-row-total">₹0</span>
         <button type="button" class="btn-del-row" title="Delete Row">×</button>
       `;
@@ -891,6 +909,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const qtyInp = rowDiv.querySelector('.item-qty-input');
       const priceInp = rowDiv.querySelector('.item-price-input');
       const delBtn = rowDiv.querySelector('.btn-del-row');
+
+      // Auto-select text on focus so user doesn't have to manually backspace default values on mobile touchscreens
+      [nameInp, qtyInp, priceInp].forEach(inp => {
+        inp.addEventListener('focus', function() {
+          setTimeout(() => { this.select(); }, 10);
+          this.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      });
 
       nameInp.addEventListener('input', (e) => {
         row.name = e.target.value;
@@ -902,13 +928,29 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       qtyInp.addEventListener('input', (e) => {
-        row.qty = parseInt(e.target.value) || 1;
+        const val = e.target.value.trim();
+        row.qty = val === '' ? 0 : (parseInt(val, 10) || 0);
         updateItemizedTotals();
+      });
+      qtyInp.addEventListener('blur', (e) => {
+        if (e.target.value.trim() === '' || isNaN(parseInt(e.target.value, 10)) || row.qty <= 0) {
+          row.qty = 1;
+          e.target.value = '1';
+          updateItemizedTotals();
+        }
       });
 
       priceInp.addEventListener('input', (e) => {
-        row.price = parseFloat(e.target.value) || 0;
+        const val = e.target.value.trim();
+        row.price = val === '' ? 0 : (parseFloat(val) || 0);
         updateItemizedTotals();
+      });
+      priceInp.addEventListener('blur', (e) => {
+        if (row.price === 0 && e.target.value.trim() === '') {
+          e.target.value = '';
+        } else {
+          e.target.value = safeAmount(row.price);
+        }
       });
 
       delBtn.addEventListener('click', () => {
@@ -1394,19 +1436,23 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ============================================
-  // Recent Invoices Ledger Modal
+  // Recent Invoices Ledger Modal (with Sorting & Filtering)
   // ============================================
 
-  const renderLedger = (filterText = '') => {
+  let activeLedgerFilter = 'all';
+  let activeLedgerSort = 'newest';
+
+  const renderLedger = () => {
     if (!ledgerList) return;
     ledgerList.innerHTML = '';
 
-    const logs = platformState.ledger || [];
+    const filterText = (ledgerSearchInput ? ledgerSearchInput.value : '').toLowerCase().trim();
+    let logs = [...(platformState.ledger || [])];
     const todayStr = new Date().toDateString();
     let todayVol = 0;
     let allTimeVol = 0;
 
-    logs.forEach(log => {
+    (platformState.ledger || []).forEach(log => {
       const amt = parseFloat(log.amount) || 0;
       allTimeVol += amt;
       if (new Date(log.timestamp).toDateString() === todayStr) {
@@ -1416,25 +1462,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (dailyRevenueText) dailyRevenueText.textContent = `₹${todayVol.toLocaleString('en-IN')}`;
     if (allTimeRevenueText) allTimeRevenueText.textContent = `₹${allTimeVol.toLocaleString('en-IN')}`;
-    if (totalBillsCount) totalBillsCount.textContent = logs.length.toString();
+    if (totalBillsCount) totalBillsCount.textContent = (platformState.ledger || []).length.toString();
 
-    const filtered = logs.filter(l => {
-      if (!filterText) return true;
-      const q = filterText.toLowerCase();
-      const matchNote = (l.note || '').toLowerCase().includes(q);
-      const matchProf = (l.profileName || '').toLowerCase().includes(q);
-      const matchAmt = l.amount.toString().includes(q);
-      const matchItems = (l.items || []).some(i => i.name.toLowerCase().includes(q));
-      return matchNote || matchProf || matchAmt || matchItems;
-    });
+    // Apply Quick Pill Filters
+    const now = new Date();
+    const todayISO = now.toISOString().split('T')[0];
+    const monthISO = todayISO.slice(0, 7);
 
-    if (filtered.length === 0) {
+    if (activeLedgerFilter === 'today') {
+      logs = logs.filter(l => (l.date || new Date(l.timestamp).toISOString()).startsWith(todayISO));
+    } else if (activeLedgerFilter === 'month') {
+      logs = logs.filter(l => (l.date || new Date(l.timestamp).toISOString()).startsWith(monthISO));
+    } else if (activeLedgerFilter === 'high-value') {
+      logs = logs.filter(l => parseFloat(l.amount || 0) >= 500);
+    }
+
+    // Apply Text Search Filter
+    if (filterText) {
+      logs = logs.filter(l => {
+        const matchNote = (l.note || '').toLowerCase().includes(filterText);
+        const matchProf = (l.profileName || '').toLowerCase().includes(filterText);
+        const matchAmt = (l.amount || '').toString().includes(filterText);
+        const matchItems = (l.items || []).some(i => (i.name || '').toLowerCase().includes(filterText));
+        return matchNote || matchProf || matchAmt || matchItems;
+      });
+    }
+
+    // Apply Sort Ordering
+    if (activeLedgerSort === 'oldest') {
+      logs.reverse();
+    } else if (activeLedgerSort === 'amount-desc') {
+      logs.sort((a, b) => parseFloat(b.amount || 0) - parseFloat(a.amount || 0));
+    } else if (activeLedgerSort === 'amount-asc') {
+      logs.sort((a, b) => parseFloat(a.amount || 0) - parseFloat(b.amount || 0));
+    }
+
+    if (logs.length === 0) {
       if (ledgerEmptyState) ledgerEmptyState.classList.remove('hidden');
       return;
     }
     if (ledgerEmptyState) ledgerEmptyState.classList.add('hidden');
 
-    filtered.forEach(item => {
+    logs.forEach(item => {
       const dt = new Date(item.timestamp);
       const timeFormatted = dt.toLocaleDateString('en-IN') + ' ' + dt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
       const itemsSummary = item.items && item.items.length > 0
@@ -1522,8 +1591,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (ledgerSearchInput) {
-    ledgerSearchInput.addEventListener('input', (e) => renderLedger(e.target.value));
+    ledgerSearchInput.addEventListener('input', () => renderLedger());
   }
+
+  const ledgerSortSelect = document.getElementById('ledgerSortSelect');
+  if (ledgerSortSelect) {
+    ledgerSortSelect.addEventListener('change', (e) => {
+      activeLedgerSort = e.target.value;
+      renderLedger();
+    });
+  }
+
+  document.querySelectorAll('.ledger-quick-filters .filter-pill').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      document.querySelectorAll('.ledger-quick-filters .filter-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeLedgerFilter = pill.getAttribute('data-filter') || 'all';
+      renderLedger();
+      if (navigator.vibrate) navigator.vibrate(5);
+    });
+  });
 
   if (btnClearAllLedger) {
     btnClearAllLedger.addEventListener('click', () => {
@@ -1664,6 +1751,9 @@ document.addEventListener('DOMContentLoaded', () => {
     upiInput.setSelectionRange(pos, pos);
   });
   amountInput.addEventListener('input', () => clearError('amountGroup'));
+  amountInput.addEventListener('focus', function() {
+    setTimeout(() => { this.select(); }, 10);
+  });
 
   amountInput.addEventListener('keydown', (e) => {
     if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -1680,6 +1770,82 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // ============================================
+  // Display Preferences (Theme Toggle & Font Scaling)
+  // ============================================
+
+  const btnThemeToggle = document.getElementById('btnThemeToggle');
+  const themeToggleIcon = document.getElementById('themeToggleIcon');
+  const btnFontDec = document.getElementById('btnFontDec');
+  const btnFontInc = document.getElementById('btnFontInc');
+  const fontSizeIndicator = document.getElementById('fontSizeIndicator');
+
+  const FONT_PRESETS = [
+    { label: 'Small', size: '14px' },
+    { label: 'Normal', size: '16px' },
+    { label: 'Large', size: '18px' },
+    { label: 'XL', size: '20px' }
+  ];
+
+  let currentFontIdx = 1; // Default to Normal (16px)
+  let isDarkMode = localStorage.getItem('payqr_theme') === 'dark';
+  const savedFontIdx = localStorage.getItem('payqr_font_idx');
+  if (savedFontIdx !== null && !isNaN(savedFontIdx)) {
+    currentFontIdx = Math.max(0, Math.min(FONT_PRESETS.length - 1, parseInt(savedFontIdx, 10)));
+  }
+
+  const updateThemeUI = () => {
+    if (isDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      if (themeToggleIcon) themeToggleIcon.textContent = '☀️ Light Theme';
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      if (themeToggleIcon) themeToggleIcon.textContent = '🌙 Dark Theme';
+    }
+    localStorage.setItem('payqr_theme', isDarkMode ? 'dark' : 'light');
+  };
+
+  const updateFontUI = () => {
+    const preset = FONT_PRESETS[currentFontIdx];
+    document.documentElement.style.setProperty('--font-base-size', preset.size);
+    if (fontSizeIndicator) fontSizeIndicator.textContent = preset.label;
+    localStorage.setItem('payqr_font_idx', currentFontIdx.toString());
+  };
+
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isDarkMode = !isDarkMode;
+      updateThemeUI();
+      if (navigator.vibrate) navigator.vibrate(5);
+    });
+  }
+
+  if (btnFontDec) {
+    btnFontDec.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentFontIdx > 0) {
+        currentFontIdx--;
+        updateFontUI();
+        if (navigator.vibrate) navigator.vibrate(5);
+      }
+    });
+  }
+
+  if (btnFontInc) {
+    btnFontInc.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentFontIdx < FONT_PRESETS.length - 1) {
+        currentFontIdx++;
+        updateFontUI();
+        if (navigator.vibrate) navigator.vibrate(5);
+      }
+    });
+  }
+
+  updateThemeUI();
+  updateFontUI();
 
   // ============================================
   // Initialize Studio

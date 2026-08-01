@@ -20,13 +20,13 @@ import AccountBanner from './AccountBanner.astro';
     <div class="input-with-prefix">
       <span class="input-prefix">₹</span>
       <input 
-        type="number" 
+        type="text" 
         class="input-field input-field--amount" 
         id="amountInput" 
         placeholder="500 or leave blank for any amount"
-        inputmode="numeric"
-        min="1"
-        max="500000"
+        inputmode="decimal"
+        enterkeyhint="next"
+        autocomplete="off"
       >
     </div>
     <span class="input-error" id="amountError"></span>

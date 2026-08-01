@@ -3,31 +3,48 @@
 ---
 
 <div id="ledgerModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
-  <div class="modal-card modal-large">
-    <div class="modal-top">
-      <h2>📜 Recent Invoices & Bill Ledger</h2>
-      <button type="button" class="btn-close-modal" aria-label="Close modal">✕</button>
-    </div>
-    
-    <!-- Analytics Box -->
-    <div class="revenue-analytics-bar">
-      <div class="metric-card">
-        <span class="metric-label">Today's Total Volume</span>
-        <strong class="metric-value" id="dailyRevenueText">₹0</strong>
+  <div class="modal-card modal-large modal-ledger-card">
+    <div class="modal-header-fixed">
+      <div class="modal-top">
+        <h2>📜 Recent Invoices & Bill Ledger</h2>
+        <button type="button" class="btn-close-modal" aria-label="Close modal">✕</button>
       </div>
-      <div class="metric-card">
-        <span class="metric-label">All-Time Invoiced</span>
-        <strong class="metric-value" id="allTimeRevenueText">₹0</strong>
+      
+      <!-- Compact Analytics Bar -->
+      <div class="revenue-analytics-bar compact-analytics">
+        <div class="metric-card">
+          <span class="metric-label">Today's Volume</span>
+          <strong class="metric-value" id="dailyRevenueText">₹0</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">All-Time Invoiced</span>
+          <strong class="metric-value" id="allTimeRevenueText">₹0</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Total Bills</span>
+          <strong class="metric-value" id="totalBillsCount">0</strong>
+        </div>
       </div>
-      <div class="metric-card">
-        <span class="metric-label">Total Bills Generated</span>
-        <strong class="metric-value" id="totalBillsCount">0</strong>
-      </div>
-    </div>
 
-    <div class="ledger-filter-bar">
-      <input type="text" id="ledgerSearchInput" class="input-field" placeholder="🔍 Filter bills by note, amount, or item name...">
-      <button type="button" id="btnClearAllLedger" class="btn-delete-small">🗑️ Clear All History</button>
+      <!-- Search, Sort & Quick Filters Toolbar -->
+      <div class="ledger-controls-area">
+        <div class="ledger-filter-bar">
+          <input type="text" id="ledgerSearchInput" class="input-field" placeholder="🔍 Filter bills by note, amount, or item name..." inputmode="search" enterkeyhint="search">
+          <select id="ledgerSortSelect" class="input-field sort-select" aria-label="Sort ledger">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="amount-desc">Amount: High ➔ Low</option>
+            <option value="amount-asc">Amount: Low ➔ High</option>
+          </select>
+        </div>
+        <div class="ledger-quick-filters">
+          <button type="button" class="filter-pill active" data-filter="all">All</button>
+          <button type="button" class="filter-pill" data-filter="today">Today</button>
+          <button type="button" class="filter-pill" data-filter="month">This Month</button>
+          <button type="button" class="filter-pill" data-filter="high-value">&gt; ₹500</button>
+          <button type="button" id="btnClearAllLedger" class="btn-delete-small ml-auto">🗑️ Clear History</button>
+        </div>
+      </div>
     </div>
 
     <div class="ledger-list-wrapper">
