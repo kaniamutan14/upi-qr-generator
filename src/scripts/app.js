@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ledger = (Array.isArray(rawState?.ledger) ? rawState.ledger : []).slice(0, MAX_LEDGER_ENTRIES).map((entry, index) => {
       const items = (Array.isArray(entry?.items) ? entry.items : []).slice(0, 100).map(item => ({
         name: safeText(item?.name, 'Item', 120).trim() || 'Item',
-        qty: Math.max(1, Math.floor(safeAmount(item?.qty, 1))),
+        qty: Math.max(0.001, safeAmount(item?.qty, 1)),
         price: safeAmount(item?.price)
       }));
       return {
@@ -355,17 +355,37 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ============================================
-  // Animated Modal Architecture Helpers
+  // Animated Modal & URL Hash Routing Architecture Helpers
   // ============================================
-  const openModal = (modalEl) => {
+  const modalHashEndMap = {
+    'profileManagerModal': '#/profiles',
+    'ledgerModal': '#/ledger',
+    'backupModal': '#/backup',
+    'onboardingModal': '#/onboarding'
+  };
+
+  const openModal = (modalEl, skipHash = false) => {
     if (!modalEl) return;
     const card = modalEl.querySelector('.modal-card');
     if (card) card.classList.remove('animate-out');
     modalEl.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+
+    if (!skipHash && modalEl.id) {
+      let targetHash = modalHashEndMap[modalEl.id];
+      if (modalEl.id === 'profileManagerModal') {
+        const catTab = document.getElementById('tabCatalog');
+        if (catTab && !catTab.classList.contains('hidden')) {
+          targetHash = '#/catalog';
+        }
+      }
+      if (targetHash && window.location.hash !== targetHash) {
+        window.location.hash = targetHash;
+      }
+    }
   };
 
-  const closeModal = (modalEl) => {
+  const closeModal = (modalEl, skipHash = false) => {
     if (!modalEl || modalEl.classList.contains('hidden')) return;
     document.body.style.overflow = '';
     const card = modalEl.querySelector('.modal-card');
@@ -378,7 +398,46 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       modalEl.classList.add('hidden');
     }
+
+    if (!skipHash && window.location.hash && window.location.hash.startsWith('#/')) {
+      window.location.hash = '';
+    }
   };
+
+  const handleHashRouting = () => {
+    const hash = window.location.hash;
+    if (!hash || hash === '#' || hash === '#/') {
+      document.querySelectorAll('.modal-backdrop').forEach(modal => {
+        if (!modal.classList.contains('hidden')) closeModal(modal, true);
+      });
+      return;
+    }
+
+    if (hash === '#/profiles' || hash === '#/catalog') {
+      const modal = document.getElementById('profileManagerModal');
+      if (modal) {
+        const isCatalog = (hash === '#/catalog');
+        const targetTabBtn = modal.querySelector(`[data-tab="${isCatalog ? 'tabCatalog' : 'tabProfiles'}"]`);
+        if (targetTabBtn && !targetTabBtn.classList.contains('active')) {
+          targetTabBtn.click();
+        }
+        if (modal.classList.contains('hidden')) {
+          openModal(modal, true);
+        }
+      }
+    } else if (hash === '#/ledger') {
+      const modal = document.getElementById('ledgerModal');
+      if (modal && modal.classList.contains('hidden')) openModal(modal, true);
+    } else if (hash === '#/backup') {
+      const modal = document.getElementById('backupModal');
+      if (modal && modal.classList.contains('hidden')) openModal(modal, true);
+    } else if (hash === '#/onboarding') {
+      const modal = document.getElementById('onboardingModal');
+      if (modal && modal.classList.contains('hidden')) openModal(modal, true);
+    }
+  };
+
+  window.addEventListener('hashchange', handleHashRouting);
 
   document.querySelectorAll('.btn-close-modal').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -406,6 +465,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetId = btn.getAttribute('data-tab');
       const targetEl = parent.querySelector(`#${targetId}`);
       if (targetEl) targetEl.classList.remove('hidden');
+
+      const modalBackdrop = btn.closest('.modal-backdrop');
+      if (modalBackdrop && modalBackdrop.id === 'profileManagerModal') {
+        if (targetId === 'tabCatalog' && window.location.hash !== '#/catalog') {
+          window.location.hash = '#/catalog';
+        } else if (targetId === 'tabProfiles' && window.location.hash !== '#/profiles') {
+          window.location.hash = '#/profiles';
+        }
+      }
     });
   });
 
@@ -671,7 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="cat-item-name">${escapeHTML(key)}</span>
         <div style="display:flex; gap:8px; align-items:center;">
           <button type="button" class="btn-add-to-bill" title="Add directly to current itemized bill">➕ Add</button>
-          <input type="number" class="cat-price-edit" value="${safeAmount(itemData.price)}" min="0">
+          <input type="text" inputmode="decimal" class="cat-price-edit" value="${safeAmount(itemData.price)}" placeholder="0" autocomplete="off">
           <button type="button" class="btn-delete-small">🗑️</button>
         </div>
       `;
@@ -809,13 +877,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateItemizedTotals = () => {
     let grandTotal = 0;
     itemizedRows.forEach(row => {
-      const rowTot = (row.qty || 0) * (row.price || 0);
+      const rawTot = (row.qty || 0) * (row.price || 0);
+      const rowTot = Math.round(rawTot * 100) / 100;
       grandTotal += rowTot;
       const rowEl = document.getElementById(`item_row_${row.id}`);
       if (rowEl) {
         rowEl.querySelector('.item-row-total').textContent = `₹${rowTot.toLocaleString('en-IN')}`;
       }
     });
+    grandTotal = Math.round(grandTotal * 100) / 100;
 
     if (computedTotalText) {
       computedTotalText.textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
@@ -896,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rowDiv.innerHTML = `
         <input type="text" class="item-name-input" placeholder="Item Name (e.g. Latte)" value="${escapeHTML(row.name)}" enterkeyhint="next" autocomplete="off">
         <div class="item-qty-wrapper" data-label="Qty">
-          <input type="text" inputmode="numeric" class="item-qty-input" value="${safeAmount(row.qty, 1)}" placeholder="1" enterkeyhint="next" autocomplete="off">
+          <input type="text" inputmode="decimal" class="item-qty-input" value="${safeAmount(row.qty, 1)}" placeholder="1" enterkeyhint="next" autocomplete="off">
         </div>
         <div class="item-price-wrapper" data-label="Price (₹)">
           <input type="text" inputmode="decimal" class="item-price-input" placeholder="0" value="${safeAmount(row.price) || ''}" enterkeyhint="next" autocomplete="off">
@@ -929,11 +999,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       qtyInp.addEventListener('input', (e) => {
         const val = e.target.value.trim();
-        row.qty = val === '' ? 0 : (parseInt(val, 10) || 0);
+        row.qty = val === '' ? 0 : (parseFloat(val) || 0);
         updateItemizedTotals();
       });
       qtyInp.addEventListener('blur', (e) => {
-        if (e.target.value.trim() === '' || isNaN(parseInt(e.target.value, 10)) || row.qty <= 0) {
+        if (e.target.value.trim() === '' || isNaN(parseFloat(e.target.value)) || row.qty <= 0) {
           row.qty = 1;
           e.target.value = '1';
           updateItemizedTotals();
@@ -1370,6 +1440,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // WhatsApp Sharing & Receipt Formatting
   // ============================================
 
+  const toggleWaInstructions = document.getElementById('toggleWaInstructions');
+  const savedWaToggle = localStorage.getItem('upi_wa_include_instructions');
+  const includeWaInstructionsInit = savedWaToggle !== 'false';
+  if (toggleWaInstructions) {
+    toggleWaInstructions.checked = includeWaInstructionsInit;
+    toggleWaInstructions.addEventListener('change', (e) => {
+      localStorage.setItem('upi_wa_include_instructions', e.target.checked.toString());
+      if (navigator.vibrate) navigator.vibrate(5);
+    });
+  }
+
   const shareWhatsApp = async () => {
     if (!currentQR) return;
     navigator.vibrate?.(30);
@@ -1386,7 +1467,11 @@ document.addEventListener('DOMContentLoaded', () => {
         `\n-----------------------------\n*Grand Total: ₹${Number(amount || 0).toLocaleString('en-IN')}*`;
     }
 
-    const shareText = `💰 Pay ${amountText} to ${name}${noteText}${itemsBlock}\n\n📲 *How to pay:*\nScan this QR code using any UPI app (GPay, PhonePe, Paytm)\n\n📱 *On WhatsApp:*\nLong press the QR image → Tap Share → Select your UPI app`;
+    const shouldIncludeInstructions = toggleWaInstructions ? toggleWaInstructions.checked : (localStorage.getItem('upi_wa_include_instructions') !== 'false');
+    const detailedInstructions = `\n\n📲 *How to Pay from This Phone:*\n\n*Method 1: Direct Share (Fastest)* ⚡\n1️⃣ Tap the photo above to view full screen.\n2️⃣ Tap the Share icon (or three dots ⠇ at top right).\n3️⃣ Select GPay, PhonePe, Paytm, or your UPI app from the list to pay immediately!\n\n*Method 2: Scan via Gallery* 🖼️\n1️⃣ Save/download this picture to your Gallery.\n2️⃣ Open your preferred UPI app (GPay / PhonePe / Paytm / BHIM).\n3️⃣ Tap 'Scan QR' on the home screen.\n4️⃣ Tap the 'Gallery' / 'Upload from Photos' icon and select this picture!`;
+    const instructionBlock = shouldIncludeInstructions ? detailedInstructions : '';
+
+    const shareText = `💰 Pay ${amountText} to ${name}${noteText}${itemsBlock}${instructionBlock}`;
     const compositeCanvas = getCompositeCanvas();
 
     try {
@@ -1431,7 +1516,7 @@ document.addEventListener('DOMContentLoaded', () => {
       whatsappBtn.classList.remove('success');
     }, 4000);
 
-    const fallbackMessage = `💰 Pay ${amountText} to ${name}\nUPI ID: ${upiId}${noteText}${itemsBlock}\n\n📲 *How to pay:*\nScan the QR code using any UPI app\n\n📱 *On WhatsApp:*\nLong press the QR image → Tap Share → Select your UPI app`;
+    const fallbackMessage = `💰 Pay ${amountText} to ${name}\nUPI ID: ${upiId}${noteText}${itemsBlock}${instructionBlock}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(fallbackMessage)}`, '_blank');
   };
 
@@ -1755,9 +1840,30 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { this.select(); }, 10);
   });
 
-  amountInput.addEventListener('keydown', (e) => {
-    if (e.key === '-' || e.key === 'e' || e.key === 'E') {
-      e.preventDefault();
+  // Strict Real-Time Input Sanitization for Numeric & Decimal Fields
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!el || el.tagName !== 'INPUT') return;
+    const mode = el.getAttribute('inputmode');
+    
+    if (mode === 'decimal' || el.classList.contains('input-field--amount') || el.classList.contains('item-price-input') || el.classList.contains('cat-price-edit') || el.classList.contains('item-qty-input')) {
+      let val = el.value.replace(/[^0-9.]/g, '');
+      const parts = val.split('.');
+      if (parts.length > 2) {
+        val = parts[0] + '.' + parts.slice(1).join('');
+      }
+      if (el.value !== val) {
+        const pos = Math.max(0, el.selectionStart - 1);
+        el.value = val;
+        try { el.setSelectionRange(pos, pos); } catch (err) {}
+      }
+    } else if (mode === 'numeric') {
+      let val = el.value.replace(/[^0-9]/g, '');
+      if (el.value !== val) {
+        const pos = Math.max(0, el.selectionStart - 1);
+        el.value = val;
+        try { el.setSelectionRange(pos, pos); } catch (err) {}
+      }
     }
   });
 
@@ -1852,4 +1958,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================
 
   loadPlatformState();
+  handleHashRouting();
 });

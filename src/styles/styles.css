@@ -1433,6 +1433,71 @@ body {
   background: transparent;
 }
 
+/* ---- WhatsApp Instructions Toggle Switch ---- */
+.wa-toggle-wrapper {
+  width: 100%;
+  margin-bottom: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+}
+.wa-toggle-wrapper:hover {
+  border-color: var(--accent);
+}
+.wa-switch-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  width: 100%;
+  user-select: none;
+}
+.wa-switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.wa-switch-slider {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  background-color: var(--border);
+  border-radius: 99px;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+.wa-switch-slider::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.wa-switch-input:checked + .wa-switch-slider {
+  background-color: var(--accent);
+}
+.wa-switch-input:checked + .wa-switch-slider::after {
+  transform: translateX(18px);
+  background-color: #000;
+}
+.wa-switch-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
 /* ---- Logo Upload Controls ---- */
 .logo-upload-wrapper {
   display: flex;
@@ -1442,6 +1507,9 @@ body {
   border: 1.5px dashed var(--border);
   border-radius: var(--radius);
   padding: 12px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .logo-preview-box {
@@ -1474,12 +1542,18 @@ body {
   flex-direction: column;
   gap: 8px;
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .file-input-custom {
   font-size: 0.8rem;
   color: var(--text-secondary);
   cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
 }
 
 .btn-delete-small, .btn-delete-profile {
@@ -2471,6 +2545,63 @@ html, body {
   .qr-container canvas {
     max-width: 100%;
     height: auto !important;
+  }
+
+  /* ---- Universal Mobile Font Scaling & Horizontal Scroll Fix ---- */
+  html, body, .app-container, .main-content, .modal-card, .tab-content, .profiles-split-view, .profiles-sidebar, .profile-edit-pane, .catalog-list-wrapper, .add-item-form, .input-group, .qr-container {
+    max-width: 100% !important;
+    box-sizing: border-box;
+    overflow-x: clip !important;
+  }
+
+  /* Ensure text breaks cleanly when device font size is magnified (Large / XL) */
+  .cat-item-name, .pli-label, .pli-upi, .tab-btn, .qr-inst-step, .qr-inst-wa, h1, h2, h3, h4, .input-label, button span {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
+  /* Profile Manager & Catalog mobile wrapping and vertical stacking */
+  .logo-upload-wrapper {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  .logo-preview-box {
+    align-self: center;
+  }
+
+  .file-input-custom {
+    font-size: 0.75rem;
+    max-width: 100%;
+    word-break: break-all;
+    overflow: hidden;
+  }
+
+  .modal-form-actions {
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100%;
+  }
+
+  .btn-save-prof, .btn-delete-profile, .btn-delete-small {
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-content: center;
+  }
+
+  .profiles-split-view, .profile-edit-pane, .profiles-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .pli-info, .catalog-item-row {
+    min-width: 0 !important;
+    max-width: 100% !important;
   }
 }
 

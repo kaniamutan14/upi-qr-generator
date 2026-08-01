@@ -97,7 +97,7 @@
       <!-- Add item manual form -->
       <form id="addItemForm" class="add-item-form">
         <input type="text" id="catNewName" class="input-field" placeholder="Item Name (e.g. Cold Coffee)" required>
-        <input type="number" id="catNewPrice" class="input-field input-cat-price" placeholder="Price ₹" min="0" required>
+        <input type="text" inputmode="decimal" id="catNewPrice" class="input-field input-cat-price" placeholder="Price ₹" required autocomplete="off">
         <button type="submit" class="btn-small-accent">+ Add Item</button>
       </form>
 
