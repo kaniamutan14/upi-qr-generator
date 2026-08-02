@@ -1468,7 +1468,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const shouldIncludeInstructions = toggleWaInstructions ? toggleWaInstructions.checked : (localStorage.getItem('upi_wa_include_instructions') !== 'false');
-    const detailedInstructions = `\n\n📲 *How to Pay from This Phone:*\n\n*Method 1: Direct Share (Fastest)* ⚡\n1️⃣ Tap the photo above to view full screen.\n2️⃣ Tap the Share icon (or three dots ⠇ at top right).\n3️⃣ Select GPay, PhonePe, Paytm, or your UPI app from the list to pay immediately!\n\n*Method 2: Scan via Gallery* 🖼️\n1️⃣ Save/download this picture to your Gallery.\n2️⃣ Open your preferred UPI app (GPay / PhonePe / Paytm / BHIM).\n3️⃣ Tap 'Scan QR' on the home screen.\n4️⃣ Tap the 'Gallery' / 'Upload from Photos' icon and select this picture!`;
+    const detailedInstructions = `\n\n📲 *How to Pay from This Phone:*\n\n*Method 1: Direct Share (Fastest)* ⚡\n1️⃣ Tap the image above for full screen.\n2️⃣ Tap the three dots (⠇) at the top right.\n3️⃣ Tap 'Share' from the menu.\n4️⃣ Select your preferred UPI app (GPay, PhonePe, Paytm, etc.) to pay!\n\n*Method 2: Scan via Gallery* 🖼️\n1️⃣ Save/download this picture to your Gallery.\n2️⃣ Open your preferred UPI app (GPay / PhonePe / Paytm / BHIM).\n3️⃣ Tap 'Scan QR' on the home screen.\n4️⃣ Tap the 'Gallery' / 'Upload from Photos' icon and select this picture!`;
     const instructionBlock = shouldIncludeInstructions ? detailedInstructions : '';
 
     const shareText = `💰 Pay ${amountText} to ${name}${noteText}${itemsBlock}${instructionBlock}`;
